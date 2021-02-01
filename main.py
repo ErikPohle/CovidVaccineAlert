@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 import datetime, time
 from playsound import playsound
 import schedule
-import time
 import ssl
 
 def timestamp():
