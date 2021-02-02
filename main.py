@@ -7,29 +7,29 @@ from playsound import playsound
 import schedule
 import time
 import ssl
+import threading
 
 def timestamp():
     ct = datetime.datetime.now()
     return "[{}, {}]".format(ct, ct.timestamp())
 
-def alert():
-    print(timestamp() + "OPENING FOUND FOR https://www.signupgenius.com/index.cfm?go=s.signup&urlid=overlake&view=standard")
-    f.write(timestamp() + "OPENING FOUND FOR https://www.signupgenius.com/index.cfm?go=s.signup&urlid=overlake&view=standard\n")
+def alert(url):
+    print(timestamp() + "OPENING FOUND FOR " + url + "\n")
+    f.write(timestamp() + "OPENING FOUND FOR " + url + "\n")
     playsound('./sound/alert.mp3')
 
-def go():
-    print(timestamp() + "Beginning web scraping...")
+def go(url):
+    print(timestamp() + "Beginning web scraping...\n")
     f.write(timestamp() + "Beginning web scraping...\n")
-    url="https://www.signupgenius.com/index.cfm?go=s.signup&urlid=overlake&view=standard"
     has_opening = False
-    print(timestamp() + "Opening URL.")
+    print(timestamp() + "Opening URL.\n")
     f.write(timestamp() + "Opening URL.\n")
     html = urlopen(url).read()
     soup = BeautifulSoup(html, "html.parser")
-    print(timestamp() + "Searching for classes named SUGsignups.")
+    print(timestamp() + "Searching for classes named SUGsignups.\n")
     f.write(timestamp() + "Searching for classes named SUGsignups.\n")
     info = soup.find_all(class_="SUGsignups")
-    print(timestamp() + "Stripping and analyzing HTML.")
+    print(timestamp() + "Stripping and analyzing HTML.\n")
     f.write(timestamp() + "Stripping and analyzing HTML.\n")
 
     for i in range(0, len(info), 1):
@@ -42,10 +42,29 @@ def go():
     if has_opening:
         print(timestamp() + "Opening found!\n")
         f.write(timestamp() + "Opening found!\n")
-        alert()
+        alert(url)
     else:
         print(timestamp() + "No openings found... retrying soon.\n")
         f.write(timestamp() + "No openings found!\n")
+
+def provisionWork():
+    threads = []
+    t1 = threading.Thread(target=go, args=["https://www.signupgenius.com/index.cfm?go=s.signup&urlid=overlake&view=standard"])
+    t2 = threading.Thread(target=go, args=["https://www.signupgenius.com/go/10c0c4caca92aa5fbc07-march"])
+    t3 = threading.Thread(target=go, args=["https://www.signupgenius.com/go/8050944a4af2ea4fb6-march2"])
+    t4 = threading.Thread(target=go, args=["https://www.signupgenius.com/go/8050944a4af2ea4fb6-march3"])
+    t5 = threading.Thread(target=go, args=["https://www.signupgenius.com/go/8050944a4af2ea4fb6-march4"])
+    threads.append(t1)
+    threads.append(t2)
+    threads.append(t3)
+    threads.append(t4)
+    threads.append(t5)
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
 
 def main():
     global f
@@ -61,7 +80,7 @@ def main():
             playsound('./sound/alert.mp3')
 
         elif user_choice.upper() == "R":
-            schedule.every(10).seconds.do(go)
+            schedule.every(15).seconds.do(provisionWork)
             while True:
                 print(timestamp() + "Preparing service...\n")
                 f.write(timestamp() + "Preparing service...\n")
