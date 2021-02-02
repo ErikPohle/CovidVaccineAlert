@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 import datetime, time
 from playsound import playsound
 import schedule
-import time
 import ssl
 import threading
 
@@ -24,7 +23,12 @@ def go(url):
     has_opening = False
     print(timestamp() + "Opening URL.\n")
     f.write(timestamp() + "Opening URL.\n")
-    html = urlopen(url).read()
+
+    proxy = urllib2.ProxyHandler({'http': '127.0.0.1'})
+    opener = urllib2.build_opener(proxy)
+    urllib2.install_opener(opener)
+    html = urllib2.urlopen(url).read()
+    
     soup = BeautifulSoup(html, "html.parser")
     print(timestamp() + "Searching for classes named SUGsignups.\n")
     f.write(timestamp() + "Searching for classes named SUGsignups.\n")
